@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace AspNetCore6WebApiWithFeatureFlags.Controllers;
 
@@ -11,13 +13,18 @@ public class WeatherForecastController : ControllerBase
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
-    private readonly ILogger<WeatherForecastController> _logger;
+    private readonly IFeatureManager featureManager;
+    private readonly ILogger<WeatherForecastController> logger;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(
+        IFeatureManagerSnapshot featureManager,
+        ILogger<WeatherForecastController> logger)
     {
-        _logger = logger;
+        this.featureManager = featureManager;
+        this.logger = logger;
     }
 
+    [FeatureGate(MyFeatureFlags.Beta)]
     [HttpGet(Name = "GetWeatherForecast")]
     public IEnumerable<WeatherForecast> Get()
     {
