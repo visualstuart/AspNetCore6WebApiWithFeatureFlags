@@ -8,3 +8,6 @@ dotnet add package Microsoft.Azure.AppConfiguration.AspNetCore
 dotnet add package Microsoft.FeatureManagement.AspNetCore
 dotnet user-secrets set ConnectionStrings:AppConfig "your_connection_string"
 ````
+
+See _Program.cs_ and _Controllers/WeatherForecastController.cs_ for 
+configuring and using feature flags from Azure App Config.
