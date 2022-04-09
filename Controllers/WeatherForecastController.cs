@@ -22,18 +22,26 @@ public class WeatherForecastController : ControllerBase
     {
         this.featureManager = featureManager;
         this.logger = logger;
-    }
+    }   
 
     [FeatureGate(MyFeatureFlags.Beta)]
     [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    public async Task<IEnumerable<WeatherForecast>> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        using (var scope = logger.BeginScope("Fun with feature flags"))
         {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+
+            bool isGamma = await featureManager.IsEnabledAsync(nameof(MyFeatureFlags.Gamma));
+
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = isGamma
+                    ? "Gamma"
+                    : Summaries[Random.Shared.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
     }
 }
