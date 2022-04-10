@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.FeatureManagement;
 using Microsoft.FeatureManagement.Mvc;
 
@@ -13,13 +14,16 @@ public class WeatherForecastController : ControllerBase
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
+    private readonly IConfigurationRefresher configurationRefresher;
     private readonly IFeatureManager featureManager;
     private readonly ILogger<WeatherForecastController> logger;
 
     public WeatherForecastController(
+        IConfigurationRefresherProvider refresherProvider,
         IFeatureManagerSnapshot featureManager,
         ILogger<WeatherForecastController> logger)
     {
+        configurationRefresher = refresherProvider.Refreshers.First();
         this.featureManager = featureManager;
         this.logger = logger;
     }   
@@ -30,7 +34,7 @@ public class WeatherForecastController : ControllerBase
     {
         using (var scope = logger.BeginScope("Fun with feature flags"))
         {
-
+            _ = await configurationRefresher.TryRefreshAsync();
             bool isGamma = await featureManager.IsEnabledAsync(nameof(MyFeatureFlags.Gamma));
 
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
