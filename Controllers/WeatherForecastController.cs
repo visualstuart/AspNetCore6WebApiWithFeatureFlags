@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.FeatureManagement;
 using Microsoft.FeatureManagement.Mvc;
+using AspNetCore6WebApiWithFeatureFlags;
 
 namespace AspNetCore6WebApiWithFeatureFlags.Controllers;
 
@@ -35,7 +36,7 @@ public class WeatherForecastController : ControllerBase
         using (var scope = logger.BeginScope("Fun with feature flags"))
         {
             _ = await configurationRefresher.TryRefreshAsync();
-            bool isGamma = await featureManager.IsEnabledAsync(nameof(MyFeatureFlags.Gamma));
+            bool isGamma = await featureManager.IsFeatureEnabledAsync(MyFeatureFlags.Gamma);
 
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
